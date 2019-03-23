@@ -308,81 +308,79 @@ class IndexController extends BaseController
         }
     }
 //购物车提交
-//    public function pay(Request $request){
-//        $id=$request->session()->get('id');
-//        $g_id=$request->input('id');
-//        $price1=$request->input('price');
-//        // print_r($id);die;
-//        $price=ltrim($price1,'￥');
-//
-//        if($g_id==''){
-//            return $arr=array(
-//                'status'=>2,
-//                'msg'=>'请选择商品'
-//            );
-//        }else{
-//            $data=Cart::join('goods','goods.goods_id','=','cart.goods_id')->whereIn('cart.g_id',$g_id)->get()->toArray();
-//        }
-//        $name=[];
-//        $num=[];
-//        foreach($data as $k=>$v){
-//            if($v['goods_show']==0){
-//                $name[]=$v['goods_name'];
-//            }
-//            if($v['num']>$v['goods_pnum']){
-//                $num[]=$v['goods_name'];
-//            }
-//        }
-//        $name=implode(',',$name);
-//        $num=implode(',',$num);
-//        if($name!=''){
-//            return $arr=array(
-//                'status'=>1,
-//                'msg'=>$name.'已下架'
-//            );
-//        }
-//        if($num!=''){
-//            return $arr=array(
-//                'status'=>1,
-//                'msg'=>$num.'库存不足'
-//            );
-//        }
-//        $time=date('YmdHis',time()).rand(11111,99999);
-//        $ins=[];
-//        $ins['user_id']=$id;
-//        $ins['order_amount']=$price;
-//        $ins['order_sn']=$time;
-//        $ins['order_pay_type']=1;
-//        $ins['pay_status']=1;
-//        $ins['status']=0;
-//        $ins['pay_way']=1;
-//        $insert=DB::table('shop_order')->insertGetId($ins);
-//        session(['order_id'=>$insert]);
-//        DB::table('cart')->whereIn('g_id',$g_id)->update(['del'=>1]);
-//        $infos=DB::table('shop_order')->where($ins)->select('order_id')->get();
-//        // print_r($infos);die;
-//        foreach($data as $k=>$v){
-//            $arr=[
-//                'user_id'=>$id,
-//                'order_id'=>$infos[0]->order_id,
-//                'order_sn'=>$time,
-//                'status'=>0,
-//                'goods_name'=>$v['goods_name'],
-//                'goods_price'=>$v['goods_price'],
-//                'goods_img'=>$v['goods_img'],
-//                'buy_numder'=>$v['num'],
-//                'goods_id'=>$v['goods_id']
-//            ];
-//            $res=DB::table('shop_order_detail')->insert($arr);
-//        }
-//        if($res){
-//            return $arr=[
-//                'status'=>3,
-//            ];
-//        }
-//    }
+   public function pay(Request $request){
+       $id=$request->session()->get('id');
+       $g_id=$request->input('id');
+       $price1=$request->input('price');
+       // print_r($id);die;
+       $price=ltrim($price1,'￥');
 
+       if($g_id==''){
+           return $arr=array(
+               'status'=>2,
+               'msg'=>'请选择商品'
+           );
+       }else{
+         $data=DB::table('cart')->join('goods','goods.goods_id','=','cart.goods_id')->whereIn('cart.g_id',$g_id)->get()->toArray();
+       }
+      foreach ($data as $v){
+            if($v->goods_show==0){
+                return $arr=array(
+                    'status'=>2,
+                    'msg'=>$v->goods_show.'已下架'
+                );
+            }
+            if($v->num>$v->goods_pnum){
+                return $arr=array(
+                    'status'=>2,
+                    'msg'=>$v->num.'库存不足',
+                );
+            }
+        }
+       $time=date('YmdHis',time()).rand(11111,99999);
+       $ins=[];
+       $ins['user_id']=$id;
+       $ins['order_amount']=$price;
+       $ins['order_sn']=$time;
+       $ins['order_pay_type']=1;
+       $ins['pay_status']=1;
+       $ins['status']=0;
+       $ins['pay_way']=1;
+       $insert=DB::table('shop_order')->insertGetId($ins);
+       session(['order_id'=>$insert]);
+       DB::table('cart')->whereIn('g_id',$g_id)->update(['del'=>1]);
+       $infos=DB::table('shop_order')->where($ins)->select('order_id')->get();
+       // print_r($infos);die;
+       foreach($data as $k=>$v){
+           $arr=[
+               'user_id'=>$id,
+               'order_id'=>$infos[0]->order_id,
+               'order_sn'=>$time,
+               'status'=>0,
+               'goods_name'=>$v->goods_name,
+                'goods_price'=>$v->goods_price,
+                'goods_img'=>$v->goods_img,
+                'buy_numder'=>$v->num,
+                'goods_id'=>$v->goods_id
+           ];
+           $res=DB::table('shop_order_detail')->insert($arr);
+       }
+       if($res){
+           return $arr=[
+               'status'=>3,
+           ];
+       }
+   }
 
+   //结算
+    public function payment(Request $request){
+        $id=$request->session()->get('order_id');
+        $where=[
+            'order_id'=>$id
+        ];
+        $data=DB::table('shop_order_detail')->where($where)->get();
+        return view('payment',['data'=>$data]);
+    }
 
     //我的潮购
     public function userpage(Request $request){

@@ -42,6 +42,8 @@ Route::any('pay',"IndexController@pay");
 Route::any('deletes',"IndexController@deletes");
 Route::any('upd',"IndexController@upd");
 Route::any('del',"IndexController@del");
+//结算
+Route::any('payment',"IndexController@payment");
 //我的潮购
 Route::any('userpage',"IndexController@userpage")->middleware('login');
 //晒单

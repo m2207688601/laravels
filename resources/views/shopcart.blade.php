@@ -285,37 +285,37 @@
             });
         })
         //去结算
-//        $('.com').click(function(){
-//            var ids=[];
-//            var price=$(".orange.total").text();
-//            $(".xuan.current").each(function () {
-//                ids.push($(this).attr('goods_id'));
-//            });
-//            var g_id=$(".z-del").attr('cart_id');
-//            // alert(ids);
-//            var data={};
-//            data.id=ids;
-//            data.price=price;
-//            $.ajax({
-//                type:"post",
-//                data:data,
-//                url:"pay",
-//                datatype:"json",
-//                success:function(res){
-//                    if(res.status==1){
-//                        alert(res.msg)
-//                        location.href="login"
-//                    }
-//                    if(res.status==2){
-//                        alert(res.msg)
-//                        location.href="shopcart"
-//                    }
-//                    if(res.status==3){
-//                        location.href="payment";
-//                    }
-//                }
-//            });
-//        })
+       $('.com').click(function(){
+           var ids=[];
+           var price=$(".orange.total").text();
+           $(".xuan.current").each(function () {
+               ids.push($(this).attr('goods_id'));
+           });
+           var g_id=$(".z-del").attr('cart_id');
+           // alert(ids);
+           var data={};
+           data.id=ids;
+           data.price=price;
+           $.ajax({
+               type:"post",
+               data:data,
+               url:"pay",
+               datatype:"json",
+               success:function(res){
+                   if(res.status==1){
+                       alert(res.msg)
+                       location.href="login"
+                   }
+                   if(res.status==2){
+                       alert(res.msg)
+                       location.href="shopcart"
+                   }
+                   if(res.status==3){
+                       location.href="payment";
+                   }
+               }
+           });
+       })
 
 
     </script>
