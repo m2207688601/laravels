@@ -50,4 +50,12 @@ Route::any('userpage',"IndexController@userpage")->middleware('login');
 Route::any('share',"IndexController@share");
 //填写晒单内容
 Route::any('willshare',"IndexController@willshare");
-
+//收货地址
+Route::any('writeaddr',"IndexController@writeaddr")->middleware('login');
+Route::post('insert',"IndexController@insert");
+Route::any('address',"IndexController@address");
+Route::post('delete',"IndexController@delete");
+Route::any('updatelist',"IndexController@updatelist");
+Route::any('update',"IndexController@update");
+Route::any('upaddress',"IndexController@upaddress");
+Route::any('trolley',"IndexController@trolley")->middleware('login');

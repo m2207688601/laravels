@@ -60,38 +60,39 @@ class IndexController extends BaseController
         }
     }
 //发送验证码
-        public function code(Request $request){
-            $arr=$request->all();
-            $num = rand(1000,9999);
-            $tel=$arr['tel'];
-            $obj=new Send();
-            $code=$obj->show($tel,$num);
-            if($code==100){
-                $data=[
-                    'code'=>$num,
-                    'tel'=>$tel,
-                    'status'=>1,
-                    'timeout'=>time()+60
-                ];
-                $res=DB::table('code')->insert($data);
-                $arr=array(
-                    'code'=>1,
-                    'msg'=>'短信发送成功'
-                );
-                echo   json_encode($arr);
-            }else{
-                $arr=array(
-                    'code'=>0,
-                    'msg'=>'短信发送失败'
-                );
-                echo  json_encode($arr);
-            }
+    public function code(Request $request){
+        $arr=$request->all();
+        $num = rand(1000,9999);
+        $tel=$arr['tel'];
+        $obj=new Send();
+        $code=$obj->show($tel,$num);
+        if($code==100){
+            $data=[
+                'code'=>$num,
+                'tel'=>$tel,
+                'status'=>1,
+                'timeout'=>time()+60
+            ];
+            $res=DB::table('code')->insert($data);
+            $arr=array(
+                'code'=>1,
+                'msg'=>'短信发送成功'
+            );
+            echo   json_encode($arr);
+        }else{
+            $arr=array(
+                'code'=>0,
+                'msg'=>'短信发送失败'
+            );
+            echo  json_encode($arr);
         }
+    }
 
-    //登录
+//登录
     public function login(){
         return view('login');
-    }
+     }
+
     public function loginadd(Request $request){
         $data=$request->input();
         $tel=$data['tel'];
@@ -119,20 +120,18 @@ class IndexController extends BaseController
             echo json_encode($arr);
         }
     }
-    //潮购首页
+//潮购首页
    public function index(){
        $data=DB::table('goods')->where(['goods_show'=>1])->paginate(2);
        $info=DB::table('goods')->where(['is_tell'=>2])->get();
        return view('index',['data'=>$data,'info'=>$info]);
    }
-   //所有商品
+//所有商品
     public function allshops(){
        $info=DB::table('goods')->get();
-//       print_r($info);die;
        $data=DB::table('category')->where(['pid'=>0])->get();
         return view('allshops',['data'=>$data,'info'=>$info]);
     }
-
     public function test(Request $request){
         $id=$request->input('id');
         $data=DB::table('category')->select("cate_id")->where("pid",0)->get();
@@ -309,9 +308,21 @@ class IndexController extends BaseController
     }
 //购物车提交
    public function pay(Request $request){
-       $id=$request->session()->get('id');
+       $id=$request->session()->get('u_id');
        $g_id=$request->input('id');
        $price1=$request->input('price');
+       $add=[
+            'user_id'=>$id,
+            'is_default'=>2
+        ];
+        
+        $info=DB::table('user_address')->where($add)->first();
+        if(empty($info)){
+            return $arr=array(
+               'status'=>2,
+               'msg'=>'填写地址'
+           );
+        }
        // print_r($id);die;
        $price=ltrim($price1,'￥');
 
@@ -375,16 +386,143 @@ class IndexController extends BaseController
    //结算
     public function payment(Request $request){
         $id=$request->session()->get('order_id');
+        $u_id=$request->session()->get('u_id');
         $where=[
             'order_id'=>$id
         ];
+         $add=[
+            'user_id'=>$u_id,
+            'is_default'=>2
+        ];
+        
+        $info=DB::table('user_address')->where($add)->first();
+        if(empty($info)){
+            echo '填写地址';
+            die;
+        }
         $data=DB::table('shop_order_detail')->where($where)->get();
-        return view('payment',['data'=>$data]);
+        return view('payment',['data'=>$data])->with(['info'=>$info]);
     }
+//收货地址
+    public function writeaddr(){
+        return view('writeaddr');
+    }
+    public function insert(Request $request){
+        $u_id=$request->session()->get('u_id');
+        $data=$request->all();
+        $data['user_id']=$u_id;
+        unset($data['_token']);
+        $arr=DB::table('user_address')->insert($data);
+        if($arr){
+            return 1;
+        }else{
+            return 2;
+        }
+    }
+//展示收货地址
+    public function address(Request $request){
+        $u_id=$request->session()->get('u_id');
+        $where=[
+            'user_id'=>$u_id
+        ];
+        $arr=DB::table('user_address')->where($where)->get();
+          
+        return view('address',['arr'=>$arr]);
+    }
+//删除地址
+    public function delete(Request $request){
+        $id=$request->all();
+        $where=[
+            'address_id'=>$id
+        ];
+        $arr=DB::table('user_address')->where($where)->delete();
+        if($arr){
+            return 1;
+        }else{
+            return 2;
+        }
+    }
+//修改地址
+    public function updatelist(Request $request){
+        $id=$request->all();
+        $where=[
+            'address_id'=>$id
+        ];
+        $data=DB::table('user_address')->where($where)->get();
+        return view('update',['data'=>$data]);
+    }
+    public function update(Request $request){
+        $id=$request->all();
+        unset($id['_token']);
+        $where=[
+            'address_id'=>$id
+        ];
+        $data=DB::table('user_address')->where($where)->update($id);
+        if($data){
+            return 1;
+        }else{
+            return 2;
+        }
+    }
+    //修改默认地址
+    public function upaddress(Request $request){
+        $id=$request->session()->get('u_id');
+        $wheres=[
+            'user_id'=>$id
+        ];
+        $data=DB::table('user_address')->where($wheres)->update(['is_default'=>1]);
+        $id=$request->all();
+        $where=[
+            'address_id'=>$id
+        ];
+       $arr= DB::table('user_address')->where($where)->update(['is_default'=>2]);
+       if($arr){
+        return  1;
+       }else{
+        return 2;
+       }
 
+    }
     //我的潮购
     public function userpage(Request $request){
-        return view('userpage');
+         $id=$request->session()->get('u_id');
+         $tel=$request->session()->get('tel');
+         $where=[
+            'u_id'=>$id,
+            'tel'=>$tel
+         ];
+        $data= DB::table('user')->where($where)->get();
+        return view('userpage',['data'=>$data]);
+    }
+    //立即支付
+    public function trolley(Request $request){
+        $id=$request->session()->get('u_id');
+        $arr=$request->all();
+        $where=[
+            'address_id'=>$arr['address_id'],
+            'user_id'=>$id
+        ];
+        $wheres=[
+             'order_id'=>$arr['id'],
+             'user_id'=>$id
+        ];
+        $data=DB::table('shop_order')->where($wheres)->get();
+        $info=DB::table('user_address')->where($where)->get();
+        if(empty($info)){
+            return array(
+                    'status'=>1,
+                    'msg'=>'填写地址'
+                );
+        }else if(empty($data)){
+                return array(
+                        'status'=>2,
+                        'msg'=>'该订单不存在'
+                    );
+            }else{
+                return array(
+                        'status'=>3,
+                    );
+            }
     }
     //晒单
     public function share(){
@@ -394,4 +532,5 @@ class IndexController extends BaseController
     public function willshare(){
         return view('willshare');
     }
+
 }

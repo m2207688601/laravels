@@ -116,12 +116,9 @@
                             </ul>
                         </div>
                     </div>
-
                 </div>
-
             </div>
         </div>
-
         <div class="footer clearfix">
             <ul>
                 <li class="f_home"><a href="{{url('/')}}" ><i></i>潮购</a></li>

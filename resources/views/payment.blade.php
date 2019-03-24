@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="layui/css/layui.css">
 </head>
 <body>
-    
+<meta name="csrf-token" content="{{ csrf_token() }}">
 <!--触屏版内页头部-->
 <div class="m-block-header" id="div-header">
     <strong id="m-title">结算支付</strong>
@@ -23,8 +23,10 @@
 <div>
         <div class="g-pay-lst">
             <ul>
+            <input type="hidden" id="address" value="{{$info->address_id}}">
             @foreach($data as $v)
                 <li>
+        
                     <a href="">
                         <span>
                             <img src="../uploads/{{$v->goods_img}}" border="0" alt="">
@@ -33,7 +35,7 @@
                             <dt>
                                 {{$v->goods_name}}
                             </dt>
-                            <dd>￥<em class="price">{{$v->goods_price}}</em></dd>
+                            <dd>￥<em class="price">{{$v->goods_price*$v->buy_numder}}</em>数量{{$v->buy_numder}}单价{{$v->goods_price}}</dd>
                         </dl>
                     </a>
                 </li>
@@ -42,11 +44,22 @@
             <div id="divMore">
                 
             </div>
-            <p class="gray9">总需支付金额：<em class="orange"><i>￥</i>1.00</em></p>
+            <p class="gray9">总需支付金额：<em class="orange"><i>￥</i>1</em></p>
         </div>
-
-        <div class="other_pay marginB">
-            
+         <!-- <div>
+                <ul>
+                    <li>
+                       收货人名称： {{$info->address_name}}
+                    </li>
+                    <li>
+                       收货人电话： {{$info->tel}}
+                    </li>
+                    <li>
+                       收货人地址： {{$info->consignee}}{{$info->country}}
+                    </li>
+                </ul>
+            </div> -->
+        <div class="other_pay marginB">       
             <a href="javascript:;" class="method chaomoney">
             	<i></i>潮购值抵扣：<span class="gray9">(可用潮购值<em>100</em>)</span><em class="orange fr"></em>
             </a>
@@ -69,10 +82,8 @@
             <div class="paylip">我们提倡理性消费</div>
         </div>
         <div class="g-Total-bt">
-            <dd><a id="btnPay" href="javascript:;" class="orangeBtn fr w_account">立即支付</a></dd>
+             <dd><a id="btnPay" href="javascript:;" order_id="{{$data[0]->order_id}}" class="orangeBtn fr w_account">立即支付</a></dd>
         </div> 
-
-
         <div class="paywrapp" style="display: none">
             <span class="lip">请输入支付密码</span>    
             <span class="title">潮人购充值</span>
@@ -106,20 +117,52 @@
 <script src="js/all.js"></script>
 <script src="layui/layui.js"></script>
 <script>
-    $('.orangeBtn').click(function(){
-            alert(111);
-    })
+  $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    }); 
+   layui.use('layer',function(){
+    var layer=layui.layer
+    $(".orangeBtn").click(function(){
+      var id=$(this).attr('order_id');
+      var address_id=$('#address').val();
+      if(address_id==''){
+        return false;
+      }
+      //console.log(address_id);return false
+        $.ajax({
+            type:"post",
+            data:{id:id,address_id:address_id},
+            url:"trolley",
+            datatype:'json',
+            success:function(res){
+                if(res.status==1){
+                    layer.msg(res.msg)
+                    location.href="writeaddr"
+                 }else if(res.status==2){
+                    layer.msg(res.msg)
+                    location.href='shopcart';
+                }else if(res.status==3){
+                     layer.open({
+                        type: 1,
+                        title: false,
+                        content: $('.paywrapp')
+                    })
+                }
+               
+            }
+        });
+    })  
+    })  
 </script>
 
 <script>
-	
 	$(document).ready(function(){
 		var total=0;
 		console.log($('.g-pay-lst li').length);
 		for(var i = 0;i<$('.g-pay-lst li').length;i++){
-		
 			total +=parseInt($('.g-pay-lst li').eq(i).find('dd em.price').text());
-
 		}
 		$('.gray9 .orange').html('<i>￥</i>'+total.toFixed(2));
 		$('.wzf .orange').html('<span class="colorbbb">需要支付&nbsp;</span><b>￥</b>'+total.toFixed(2));
@@ -226,11 +269,12 @@
 
 
     $('#btnPay').click(function(){
-        layer.open({
-            type: 1,
-            title: false,
-            content: $('.paywrapp')
-        })
+        // layer.open({
+        //     type: 1,
+        //     title: false,
+        //     content: $('.paywrapp')
+        // })
+    
     })
         
 </script>

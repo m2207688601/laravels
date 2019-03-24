@@ -22,12 +22,13 @@
         <i class="set"></i>
         <div class="login-img clearfix">
             <ul>
+            @foreach($data as $v)
                 <li><img src="images/goods2.jpg" alt=""></li>
                 <li class="name">
-                    <h3>兰兰</h3>
-                    <p>ID：10030053</p>
+                    <h3>{{$v->tel}}</h3>
                 </li>
                 <li class="next fr"><s></s></li>
+            @endforeach
             </ul>
         </div>
         <div class="chao-money">
@@ -56,7 +57,7 @@
         <a href="/v44/member/orderlist.do"><s class="m_s2"></s>获得的商品<i></i></a>
         <a href="{{url('share')}}"><s class="m_s3"></s>我的晒单<i></i></a>
         <a href="/v44/member/mywallet.do"><s class="m_s4"></s>我的钱包<i></i></a>
-        <a href="/v44/member/mywallet.do"><s class="m_s5"></s>收货地址<i></i></a>
+        <a href="{{url('writeaddr')}}"><s class="m_s5"></s>收货地址<i></i></a>
         <a href="/v44/help/help.do" class="mt10"><s class="m_s6"></s>帮助与反馈<i></i></a>
         <a href="/v44/help/help.do"><s class="m_s7"></s>二维码分享<i></i></a>
         <p class="colorbbb">客服热线：400-666-2110  (工作时间9:00-17:00)</p>
@@ -65,7 +66,7 @@
     <ul>
         <li class="f_home"><a href="{{url('/')}}" ><i></i>潮购</a></li>
         <li class="f_single"><a href="{{url('willshare')}}" ><i></i>晒单</a></li>
-        <li "><a href="/v44/lottery/" ><i></i>{{--最新揭晓class="f_announced--}}</a></li>
+        <li ><a href="/v41/lottery/" ><i> {{--class="f_announced"最新揭晓--}}</i></a></li>
         <li class="f_car"><a id="btnCart" href="{{url('shopcart')}}" ><i></i>购物车</a></li>
         <li class="f_personal"><a href="{{url('userpage')}}" class="hover"><i></i>我的潮购</a></li>
     </ul>
@@ -76,9 +77,9 @@
             $(obj).empty();
             location.href = href;
         }
-        if (navigator.userAgent.toLowerCase().match(/MicroMessenger/i) != "micromessenger") {
-            $(".m-block-header").show();
-        }
+        // if (navigator.userAgent.toLowerCase().match(/MicroMessenger/i) != "micromessenger") {
+        //     $(".m-block-header").show();
+        // }
     </script>
 </body>
 </html>

@@ -100,11 +100,12 @@
 
     <div class="footer clearfix">
         <ul>
-            <li class="f_home"><a href="/index" ><i></i>潮购</a></li>
-            <li class="f_announced"><a href="/v41/lottery/" ><i></i>最新揭晓</a></li>
+            <li class="f_home"><a href="{{url('/')}}" ><i></i>潮购</a></li>
             <li class="f_single"><a href="/v41/post/index.do" ><i></i>晒单</a></li>
-            <li class="f_car"><a id="btnCart" href="/v41/mycart/index.do" class="hover"><i></i>购物车</a></li>
-            <li class="f_personal"><a href="/v41/member/index.do" ><i></i>我的潮购</a></li>
+           <li ><a href="/v41/lottery/" ><i> {{--class="f_announced"最新揭晓--}}</i></a></li>
+
+            <li class="f_car"><a id="btnCart" href="{{url('shopcart')}}" class="hover"><i></i>购物车</a></li>
+            <li class="f_personal"><a href="{{url('userpage')}}" ><i></i>我的潮购</a></li>
         </ul>
     </div>
 
@@ -285,39 +286,38 @@
             });
         })
         //去结算
-       $('.com').click(function(){
-           var ids=[];
-           var price=$(".orange.total").text();
-           $(".xuan.current").each(function () {
-               ids.push($(this).attr('goods_id'));
-           });
-           var g_id=$(".z-del").attr('cart_id');
-           // alert(ids);
-           var data={};
-           data.id=ids;
-           data.price=price;
-           $.ajax({
-               type:"post",
-               data:data,
-               url:"pay",
-               datatype:"json",
-               success:function(res){
-                   if(res.status==1){
-                       alert(res.msg)
-                       location.href="login"
-                   }
-                   if(res.status==2){
-                       alert(res.msg)
-                       location.href="shopcart"
-                   }
-                   if(res.status==3){
-                       location.href="payment";
-                   }
-               }
-           });
-       })
-
-
+        $('.com').click(function(){
+            var ids=[];
+            //总价格
+            var price=$(".orange.total").text();
+            //拿到goods_id
+            $(".xuan.current").each(function () {
+                ids.push($(this).attr('goods_id'));
+            });
+            var g_id=$(".z-del").attr('cs');
+            var data={};
+            data.id=ids;
+            data.price=price;
+            $.ajax({
+                type:"post",
+                data:data,
+                url:"pay",
+                datatype:"json",
+                success:function(res){
+                    if(res.status==1){
+                        alert(res.msg);
+                        location.href="login"
+                    }
+                    if(res.status==2){
+                        alert(res.msg);
+                        location.href="shopcart"
+                    }
+                    if(res.status==3){
+                        location.href="payment";
+                    }
+                }
+            });
+        });
     </script>
 </body>
 </html>
